@@ -1,0 +1,28 @@
+@model IEnumerable<vidly.Models.Movie>
+
+@{
+    ViewData["Title"] = "Random Movie";
+}
+
+<div class="text-white">
+
+    <h2>Random Movie :</h2>
+
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Genre</th>
+            </tr>
+        </thead> 
+        <tbody>
+            @foreach (var movie in Model)
+            {
+                <tr scope="row">
+                     <td>@Html.ActionLink(movie.Name, "Details", "Movies", new { id = movie.Id})</td>
+                     <td>@movie.Genre.Name</td>
+                </tr>
+            } 
+        </tbody>
+    </table>
+</div>

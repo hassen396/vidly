@@ -1,0 +1,11 @@
+@model vidly.Models.Movie
+
+@{
+    ViewData["Title"] = "Random Movie";
+}
+<h2 class="text-white">Details</h2>
+<h3 class = "text-white">@Model.Name</h3>
+<p class="text-white">Genre: @Model.Genre</p>
+<p class="text-white">Release Date: @Model.ReleaseDate.ToString("dd-MM-yyyy")</p>
+<p class="text-white">Number of Available Copies: @Model.Stock</p>
+<p class="text-white">Date added: @Model.DateAdded.ToString("yyyy-MM-dd")</p>

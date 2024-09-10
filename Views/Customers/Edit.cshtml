@@ -1,0 +1,46 @@
+@model vidly.ViewModels.ViewModel
+
+<div class="container text-white">
+    <h2>Update Customer</h2>
+
+    @using (Html.BeginForm("Update", "Customers", FormMethod.Post))
+    {
+        <input type="hidden" name="Id" value="@Model.Customer.Id" />
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Customer.Name)
+            @Html.TextBoxFor(m => m.Customer.Name, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Customer.DateOfBirth)
+            @Html.TextBoxFor(m => m.Customer.DateOfBirth, new { @class = "form-control" })
+        </div>
+
+        <div class="checkbox">
+            <label>
+                @Html.CheckBoxFor(m => m.Customer.IsSubscribedToNewsletter) Subscribed to Newsletter?
+            </label>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.Customer.MembershipTypeId)
+            @Html.DropDownListFor(m => m.Customer.MembershipTypeId,
+                     new SelectList(Model.MembershipTypes, "Id", "Name"), new { @class = "form-control" })
+        </div>
+
+        <!-- Submit button for form -->
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Edit</button>
+        </div>
+    }
+
+    <!-- Links to other actions (outside the form) -->
+    <div class="form-group">
+        <a href="@Url.Action("Index", "Customers")" class="btn btn-danger mt-5">Cancel</a>
+        @* <a href="@Url.Action("Delete", "Customers", new { id = Model.Customer.Id })" class="btn
+        btn-danger">Delete</a>
+        <a href="@Url.Action("Details", "Customers", new { id = Model.Customer.Id })" class="btn btn-info">Back to
+        Details</a> *@
+    </div>
+</div>
