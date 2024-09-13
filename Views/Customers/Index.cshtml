@@ -1,7 +1,18 @@
 @model IEnumerable<vidly.Models.Customer>
 
+
+@{
+    ViewBag.Title = "Customer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 <h2 class="text-white">list of customers</h2>
-<table class="table table-dark table-striped">
+@if(!Model.Any())
+{
+    <p>we don't have any customers yet</p>
+}
+else 
+{
+    <table class="table table-dark table-striped">
     <thead>
         <tr>
             <th scope="col">Name</th>
@@ -23,4 +34,11 @@
 @using (Html.BeginForm("New", "Customers", FormMethod.Get))
 {
     <button type="submit" class="btn btn-primary">Add New customers</button>
+}
+
+@* some paragraph about 15 lines *@
+<p class="text-light mb-5">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id laoreet neque. Nulla facilisi. Sed facilisis, ipsum sed condimentum mollis, nisi velit sagittis lectus, non pharetra purus neque at ex. Sed varius, ipsum vel consectetur pulvinar, velit nunc faucibus diam, in consectetur libero quam non velit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer tristique orci vel mauris finibus, vel ullamcorper velit dictum. Donec vel libero at sapien consectetur condimentum. Maecenas vel urna at neque convallis pulvinar.
+    Phasellus vel ipsum non turpis fermentum tincidunt. Sed viverra, mauris vel posuere semper, enim nunc iaculis tortor, vel bibendum felis nunc sed velit. Nulla facilisi. Morbi vel ipsum vel nunc ultrices varius. Donec sed ipsum et justo fermentum auctor. Quisque in ipsum nec velit lobortis vulputate.
+</p>
 }

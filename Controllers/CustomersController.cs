@@ -1,112 +1,115 @@
-using Microsoft.AspNetCore.Mvc;
+//entity framework
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using vidly.Data;
 using vidly.Models;
 using vidly.ViewModels;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Vidly.Controllers
+namespace vidly.Controllers
 {
     public class CustomersController : Controller
     {
-
-        //private field for db
         private readonly AppDbContext _context;
+        // Constructor with dependency injection of AppDbContext
         public CustomersController(AppDbContext context)
         {
             _context = context;
         }
-
+        //dispose
         protected override void Dispose(bool disposing)
         {
             _context.Dispose();
         }
-        // GET: /Customer/Index
-        public IActionResult Index()
+        // GET: /Customers/Index
+        public ViewResult Index()
         {
-            var customers = _context.Customers.
-            Include(c => c.MembershipType).ToList();
+            //Fetch all customers from the database with MembershipType including
+            //their associated membership type
+            var customers = _context.Customers
+               .Include(c => c.MembershipType).ToList();
+            //Return the Index view with the list of customers
             return View(customers);
         }
-
-        // GET: /Customer/Details/5
-        public IActionResult Details(int? id)
+        //GET: /Customers/Details
+        public ActionResult Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = _context.Customers
-               .Include(c => c.MembershipType)
-               .FirstOrDefault(m => m.Id == id);
+            // Fetch the customer from the database by ID
+            var customer = _context.Customers.
+            Include(c => c.MembershipType).FirstOrDefault(c => c.Id == id);
             if (customer == null)
             {
+                // If no customer is found, return NotFound
                 return NotFound();
             }
-
+            // Return the Details view and pass the customer to it
             return View(customer);
         }
-        // GET: /Customers/New
+        // GET: /Customers/Edit
+        public ActionResult Edit(int id)
+        {
+            // Fetch the customer from the database by ID
+            var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
+            if (customer == null)
+            {
+                // If no customer is found, return NotFound
+                return NotFound();
+            }
+            var viewModel = new CustomerFormViewModel
+            {
+                Customer = customer,
+                MembershipTypes = _context.MembershipTypes.ToList()
+            };
+            // Return the Edit view and pass the customer to it
+
+            return View("CustomerForm", viewModel);
+        }
+        //customers/New url
+        [HttpGet]
         public ActionResult New()
         {
             var membershipTypes = _context.MembershipTypes.ToList();
-            var viewModel = new ViewModel
+            var viewModel = new CustomerFormViewModel
             {
+                Customer = new Customer(),
                 MembershipTypes = membershipTypes
             };
-            return View(viewModel);
+            return View("CustomerForm", viewModel);
         }
-        // POST: /Customers/Create
-        [HttpPost]
-        public ActionResult Create(Customer customer)
-        {
-            _context.Add(customer);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
-        // GET: /Customers/Edit/5
-        [HttpGet]
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var customer = _context.Customers
-               .Include(c => c.MembershipType)
-               .FirstOrDefault(m => m.Id == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
 
-            var membershipTypes = _context.MembershipTypes.ToList();
-            var viewModel = new ViewModel
-            {
-                Customer = customer,
-                MembershipTypes = membershipTypes
-            };
-            return View(viewModel);
-        }
-        // POST: /Customers/Edit/5
+        // POST: /Customers/Save
         [HttpPost]
-        public ActionResult Update(int id, ViewModel viewModel)
+        [ValidateAntiForgeryToken]
+        public ActionResult Save(Customer customer)
         {
             if (!ModelState.IsValid)
             {
-                // Repopulate the MembershipTypes because they are not persisted across postbacks
-                viewModel.MembershipTypes = _context.MembershipTypes.ToList();
+                var viewModel = new CustomerFormViewModel
+                {
+                    Customer = customer,
+                    MembershipTypes = _context.MembershipTypes.ToList()
+                };
 
-                // Redisplay the form with the current data
-                return RedirectToAction("Edit",viewModel);
+                return View("CustomerForm", viewModel);
             }
-
-            _context.Update(viewModel);
+            if (customer.Id == 0)
+            {
+                // If the customer ID is 0, it means a new customer is being created
+                _context.Customers.Add(customer);
+            }
+            else
+            {
+                var customerInDb = _context.Customers.Single(c => c.Id == customer.Id);
+                customerInDb.Name = customer.Name;
+                customerInDb.DateOfBirth = customer.DateOfBirth;
+                customerInDb.MembershipTypeId = customer.MembershipTypeId;
+                customerInDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
+            }
             _context.SaveChanges();
-            return RedirectToAction("Index");
+            // Redirect to the Index action
+            return RedirectToAction("Index", "Customers");
         }
-
     }
 }

@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using vidly.Data;
 using vidly.Models;
-
+using vidly.Data;
+using vidly.ViewModels;
 namespace Vidly.Controllers
 {
     public class MoviesController : Controller
@@ -22,7 +23,7 @@ namespace Vidly.Controllers
 
         // GET: /Movies/Home
         // This method retrieves all movies from the database
-        public async Task<IActionResult> Home()
+        public async Task<IActionResult> Index()
         {
             // Fetch movies from the database asynchronously 
             var movies = await _context.Movies.
@@ -37,48 +38,58 @@ namespace Vidly.Controllers
         public async Task<IActionResult> Details(int id)
         {
             // Fetch the movie and its customers' ratings from the database asynchronously
-            var movie = await _context.Movies
-               .Include(m => m.Genre)
-               .FirstOrDefaultAsync(m => m.Id == id);
-
+            var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
                 // If no movie is found, return NotFound
                 return NotFound();
             }
 
+            var viewModel = new MovieFormViewModel
+            {
+                Genres = _context.Genres.ToList(),
+                Movie = movie
+            };
+
             // Return the view and pass the movie details to it
-            return View(movie);
+            return View("MovieForm", viewModel);
         }
 
         // GET: /Movies/New
         // This method displays a form to create a new movie
         public IActionResult New()
         {
+            var genres = _context.Genres.ToList();
+            var viewModel = new MovieFormViewModel
+            {
+                Genres = genres
+            };
             // Simply return a view to create a new movie
-            return View();
+            return View("MovieForm", viewModel);
         }
 
         // POST: /Movies/Create
         // This method creates a new movie and saves it to the database
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Movie movie)
+
+        //save
+        public ActionResult Save(Movie movie)
         {
-            if (!ModelState.IsValid)
-            {
-                // If the input model is invalid, return the same view with validation errors
-                return View(movie);
-            }
-
-            // Add the new movie to the database and save changes asynchronously
+            if(movie.Id == 0)
             _context.Movies.Add(movie);
-            await _context.SaveChangesAsync();
+            else
+            {
+                var movieInDb = _context.Movies.Single(m => m.Id == movie.Id);
+                movieInDb.Name = movie.Name;
+                movieInDb.ReleaseDate = movie.ReleaseDate;
+                movieInDb.GenreId = movie.GenreId;
+                movieInDb.Stock = movie.Stock;
+            }
+            _context.SaveChanges();
 
-            // After saving, redirect to the Home action
-            return RedirectToAction(nameof(Home));
+            return RedirectToAction("Index", "Movies");
         }
-
         // GET: /Movies/Edit/5
         // This method displays a form to edit an existing movie
         // public async Task<IActionResult> Edit(int id)

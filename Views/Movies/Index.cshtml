@@ -1,13 +1,15 @@
 @model IEnumerable<vidly.Models.Movie>
 
 @{
-    ViewData["Title"] = "Random Movie";
+    ViewData["Title"] = "Movies";
 }
-
 <div class="text-white">
 
-    <h2>Random Movie :</h2>
-
+    <h2>Movies :</h2>
+    @using (Html.BeginForm("New", "movies", FormMethod.Get))
+{
+    <button type="submit" class="btn btn-primary mb-3">New Movie</button>
+}
     <table class="table table-dark table-striped">
         <thead>
             <tr>

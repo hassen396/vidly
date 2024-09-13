@@ -2,7 +2,7 @@ using vidly.Models;
 
 namespace vidly.ViewModels
 {
-    public class ViewModel
+    public class CustomerFormViewModel
     {
 
         public IEnumerable<MembershipType> MembershipTypes { get; set; }
